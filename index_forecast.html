@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kraken Weather Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(#0c0c0c, #1a1a1a);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .weather-container {
+      max-width: 240px;
+      padding: 10px;
+    }
+    .main-temp {
+      font-size: 48px;
+      margin: 0;
+    }
+    .condition {
+      font-size: 20px;
+      color: #f9c74f;
+      margin-bottom: 10px;
+    }
+    .forecast {
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .forecast-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .forecast-day img {
+      width: 32px;
+      height: 32px;
+    }
+    .error {
+      color: #f94144;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-container">
+    <h1 class="main-temp" id="temp">--°F</h1>
+    <div class="condition" id="description">Loading...</div>
+    <div class="forecast" id="forecast"></div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
+
+    async function fetchWeather() {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch weather");
+        const data = await res.json();
+
+        document.getElementById('temp').textContent = Math.round(data.current.main.temp) + "°F";
+        document.getElementById('description').textContent = data.current.weather[0].description;
+
+        const forecastDiv = document.getElementById('forecast');
+        forecastDiv.innerHTML = "";
+
+        data.forecast.forEach(day => {
+          const date = new Date(day.dt_txt);
+          const options = { weekday: 'short' };
+          const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
+          const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+          const temp = `${Math.round(day.main.temp_min)}/${Math.round(day.main.temp_max)}°`;
+
+          forecastDiv.innerHTML += `
+            <div class="forecast-day">
+              <div>${dayName}</div>
+              <img src="${icon}" alt="${day.weather[0].main}">
+              <div>${temp}</div>
+            </div>
+          `;
+        });
+
+      } catch (err) {
+        console.error("Weather Fetch Error:", err.message);
+        document.getElementById("error").textContent = "Failed to load weather data.";
+        document.getElementById("description").textContent = "Check connection or proxy.";
+      }
+    }
+
+    fetchWeather();
+  </script>
+</body>
+</html>
