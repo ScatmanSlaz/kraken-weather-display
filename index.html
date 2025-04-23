@@ -95,7 +95,7 @@
         const options = { weekday: 'short' };
         const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
         const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
-        const temp = `${Math.round(day.temp.min)}/${Math.round(day.temp.max)}°`;
+        const temp = `${Math.round(day.main.temp_min)}/${Math.round(day.main.temp_max)}°`;
 
     forecastDiv.innerHTML += `
     <div class="forecast-day">
