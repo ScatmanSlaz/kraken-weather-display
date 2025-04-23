@@ -63,17 +63,12 @@
   </div>
 
   <script>
-    const API_KEY = "249dd5f81f8f301c9fc6afa33cbe543c";
-    const LAT = 44.52;
-    const LON = -89.58;
+    const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
 
     async function fetchWeather() {
       try {
-        const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${LAT}&lon=${LON}&units=imperial&exclude=minutely,hourly,alerts&appid=${API_KEY}`;
         const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status} - ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error("Failed to fetch weather");
         const data = await res.json();
 
         document.getElementById('temp').textContent = Math.round(data.current.temp) + "°F";
@@ -87,7 +82,6 @@
           const date = new Date(day.dt * 1000);
           const options = { weekday: 'short' };
           const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
-
           const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
           const temp = `${Math.round(day.temp.min)}/${Math.round(day.temp.max)}°`;
 
@@ -99,10 +93,10 @@
             </div>
           `;
         }
-      } catch (error) {
-        console.error("Weather Fetch Error:", error);
-        document.getElementById('error').textContent = "Failed to load weather data.";
-        document.getElementById('description').textContent = "Check API key or browser console.";
+      } catch (err) {
+        console.error("Weather Fetch Error:", err.message);
+        document.getElementById("error").textContent = "Failed to load weather data.";
+        document.getElementById("description").textContent = "Check connection or proxy.";
       }
     }
 
