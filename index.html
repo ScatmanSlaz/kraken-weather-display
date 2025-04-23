@@ -2,26 +2,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Kraken Weather Widget</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #0f0f0f;
-            font-family: Arial, sans-serif;
-            color: white;
-            text-align: center;
-        }
-        iframe {
-            border: none;
-            width: 100vw;
-            height: 100vh;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Kraken Weather Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(#0c0c0c, #1a1a1a);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .weather-container {
+      max-width: 240px;
+      padding: 10px;
+    }
+    .main-temp {
+      font-size: 48px;
+      margin: 0;
+    }
+    .condition {
+      font-size: 20px;
+      color: #f9c74f;
+      margin-bottom: 10px;
+    }
+    .forecast {
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .forecast-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .forecast-day img {
+      width: 32px;
+      height: 32px;
+    }
+  </style>
 </head>
 <body>
-    <iframe src="https://forecast7.com/en/44d52n89d57/stevens-point/?unit=us&days=3&theme=dark" allowtransparency="true"></iframe>
+  <div class="weather-container">
+    <h1 class="main-temp" id="temp">--°F</h1>
+    <div class="condition" id="description">Loading...</div>
+    <div class="forecast" id="forecast"></div>
+  </div>
+
+  <script>
+    const API_KEY = "249dd5f81f8f301c9fc6afa33cbe543c"; // Replace this with your actual key
+    const LAT = 44.52;
+    const LON = -89.58;
+
+    async function fetchWeather() {
+      const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${LAT}&lon=${LON}&units=imperial&exclude=minutely,hourly,alerts&appid=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      document.getElementById('temp').textContent = Math.round(data.current.temp) + "°F";
+      document.getElementById('description').textContent = data.current.weather[0].description;
+
+      const forecastDiv = document.getElementById('forecast');
+      forecastDiv.innerHTML = "";
+
+      for (let i = 1; i <= 3; i++) {
+        const day = data.daily[i];
+        const date = new Date(day.dt * 1000);
+        const options = { weekday: 'short' };
+        const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
+
+        const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+        const temp = `${Math.round(day.temp.min)}/${Math.round(day.temp.max)}°`;
+
+        forecastDiv.innerHTML += `
+          <div class="forecast-day">
+            <div>${dayName}</div>
+            <img src="${icon}" alt="${day.weather[0].main}">
+            <div>${temp}</div>
+          </div>
+        `;
+      }
+    }
+
+    fetchWeather();
+  </script>
 </body>
 </html>
