@@ -89,22 +89,22 @@
         const forecastDiv = document.getElementById('forecast');
         forecastDiv.innerHTML = "";
 
-        data.forecast.forEach(day => {
-          const date = new Date(day.dt_txt);
-          const options = { weekday: 'short' };
-          const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
-          const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
-          const tempMin = Math.round(day.main.temp_min);
-          const tempMax = Math.round(day.main.temp_max);
+        for (let i = 1; i <= 3; i++) {
+        const day = data.forecast[i - 1];
+        const date = new Date(day.dt_txt);
+        const options = { weekday: 'short' };
+        const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
+        const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+        const temp = `${Math.round(day.temp.min)}/${Math.round(day.temp.max)}°`;
 
-          forecastDiv.innerHTML += `
-            <div class="forecast-day">
-              <div>${dayName}</div>
-              <img src="${icon}" alt="${day.weather[0].main}">
-              <div>${tempMin}°/${tempMax}°</div>
-            </div>
-          `;
-        });
+    forecastDiv.innerHTML += `
+    <div class="forecast-day">
+      <div>${dayName}</div>
+      <img src="${icon}" alt="${day.weather[0].main}">
+      <div>${temp}</div>
+    </div>
+  `;
+});
       } catch (err) {
         console.error("Weather Fetch Error:", err.message);
         document.getElementById("error").textContent = "Failed to load weather data.";
