@@ -47,6 +47,11 @@
       width: 32px;
       height: 32px;
     }
+    .error {
+      color: #f94144;
+      font-size: 16px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -54,40 +59,50 @@
     <h1 class="main-temp" id="temp">--°F</h1>
     <div class="condition" id="description">Loading...</div>
     <div class="forecast" id="forecast"></div>
+    <div class="error" id="error"></div>
   </div>
 
   <script>
-    const API_KEY = "249dd5f81f8f301c9fc6afa33cbe543c"; // Replace this with your actual key
+    const API_KEY = "249dd5f81f8f301c9fc6afa33cbe543c";
     const LAT = 44.52;
     const LON = -89.58;
 
     async function fetchWeather() {
-      const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${LAT}&lon=${LON}&units=imperial&exclude=minutely,hourly,alerts&appid=${API_KEY}`;
-      const res = await fetch(url);
-      const data = await res.json();
+      try {
+        const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${LAT}&lon=${LON}&units=imperial&exclude=minutely,hourly,alerts&appid=${API_KEY}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+        }
+        const data = await res.json();
 
-      document.getElementById('temp').textContent = Math.round(data.current.temp) + "°F";
-      document.getElementById('description').textContent = data.current.weather[0].description;
+        document.getElementById('temp').textContent = Math.round(data.current.temp) + "°F";
+        document.getElementById('description').textContent = data.current.weather[0].description;
 
-      const forecastDiv = document.getElementById('forecast');
-      forecastDiv.innerHTML = "";
+        const forecastDiv = document.getElementById('forecast');
+        forecastDiv.innerHTML = "";
 
-      for (let i = 1; i <= 3; i++) {
-        const day = data.daily[i];
-        const date = new Date(day.dt * 1000);
-        const options = { weekday: 'short' };
-        const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
+        for (let i = 1; i <= 3; i++) {
+          const day = data.daily[i];
+          const date = new Date(day.dt * 1000);
+          const options = { weekday: 'short' };
+          const dayName = new Intl.DateTimeFormat('en-US', options).format(date);
 
-        const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
-        const temp = `${Math.round(day.temp.min)}/${Math.round(day.temp.max)}°`;
+          const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+          const temp = `${Math.round(day.temp.min)}/${Math.round(day.temp.max)}°`;
 
-        forecastDiv.innerHTML += `
-          <div class="forecast-day">
-            <div>${dayName}</div>
-            <img src="${icon}" alt="${day.weather[0].main}">
-            <div>${temp}</div>
-          </div>
-        `;
+          forecastDiv.innerHTML += `
+            <div class="forecast-day">
+              <div>${dayName}</div>
+              <img src="${icon}" alt="${day.weather[0].main}">
+              <div>${temp}</div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error("Weather Fetch Error:", error);
+        document.getElementById('error').textContent = "Failed to load weather data.";
+        document.getElementById('description').textContent = "Check API key or browser console.";
       }
     }
 
