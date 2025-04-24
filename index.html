@@ -65,36 +65,36 @@
   <script>
     const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
 
-    async function fetchWeather() {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Failed to fetch weather");
-        const data = await res.json();
+async function fetchWeather() {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch weather");
+    const data = await res.json();
 
-        document.getElementById("temp").textContent = `${Math.round(data.current.temperature)}°F`;
-        document.getElementById("description").textContent = data.current.shortForecast;
+    document.getElementById("temp").textContent = `${Math.round(data.current.temperature)}°F`;
+    document.getElementById("description").textContent = data.current.shortForecast;
 
-        const forecastDiv = document.getElementById("forecast");
-        forecastDiv.innerHTML = "";
+    const forecastDiv = document.getElementById("forecast");
+    forecastDiv.innerHTML = "";
 
-        data.forecast.slice(0, 3).forEach(day => {
-          const icon = `https://api.weather.gov/icons/land/day/${day.icon.split('/').pop()}`;
-          forecastDiv.innerHTML += `
-            <div class="forecast-day">
-              <div>${day.name}</div>
-              <img src="${icon}" alt="${day.shortForecast}">
-              <div>${day.temperature}°</div>
-            </div>
-          `;
-        });
-      } catch (err) {
-        console.error("Weather Fetch Error:", err.message);
-        document.getElementById("error").textContent = "Failed to load weather data.";
-        document.getElementById("description").textContent = "Check Connection Or Proxy.";
-      }
-    }
+    data.forecast.forEach(day => {
+      forecastDiv.innerHTML += `
+        <div class="forecast-day">
+          <div>${day.name}</div>
+          <img src="${day.icon}" alt="${day.shortForecast}">
+          <div>${day.temperature}°</div>
+        </div>
+      `;
+    });
+  } catch (err) {
+    console.error("Weather Fetch Error:", err.message);
+    document.getElementById("error").textContent = "Failed to load weather data.";
+    document.getElementById("description").textContent = "Check connection or proxy.";
+  }
+}
 
-    fetchWeather();
+fetchWeather();
+
   </script>
 </body>
 </html>
