@@ -43,7 +43,6 @@
       align-items: center;
       margin: 0 10px;
     }
-    .forecast-day video,
     .forecast-day img {
       width: 60px;
       height: 60px;
@@ -58,7 +57,7 @@
 <body>
   <h1 class="main-temp" id="temp">--°F</h1>
   <div class="condition" id="description">Loading...</div>
-  <div id="current-icon"></div>
+  <img id="current-icon" class="icon-large" alt="" />
   <div class="forecast" id="forecast"></div>
   <div class="error" id="error"></div>
 
@@ -66,25 +65,30 @@
     const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
 
     const iconMap = {
-      "Sunny": "https://cdn-icons-mp4.flaticon.com/512/11708/11708870.mp4",
-      "Clear": "https://cdn-icons-mp4.flaticon.com/512/11708/11708870.mp4",
-      "Cloudy": "https://cdn-icons-mp4.flaticon.com/512/11708/11708862.mp4",
-      "Partly Cloudy": "https://cdn-icons-mp4.flaticon.com/512/11708/11708863.mp4",
-      "Mostly Cloudy": "https://cdn-icons-mp4.flaticon.com/512/11708/11708863.mp4",
-      "Rain": "https://cdn-icons-mp4.flaticon.com/512/11708/11708867.mp4",
-      "Showers": "https://cdn-icons-mp4.flaticon.com/512/11708/11708867.mp4",
-      "Thunderstorms": "https://cdn-icons-mp4.flaticon.com/512/11708/11708866.mp4",
-      "Snow": "https://cdn-icons-mp4.flaticon.com/512/11708/11708868.mp4",
-      "Fog": "https://cdn-icons-mp4.flaticon.com/512/11708/11708865.mp4"
+      "sunny": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+      "clear": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+      "cloudy": "https://cdn-icons-png.flaticon.com/512/414/414825.png",
+      "partly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "mostly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "overcast": "https://cdn-icons-png.flaticon.com/512/414/414825.png",
+      "fog": "https://cdn-icons-png.flaticon.com/512/4005/4005901.png",
+      "haze": "https://cdn-icons-png.flaticon.com/512/4005/4005901.png",
+      "rain": "https://cdn-icons-png.flaticon.com/512/1146/1146858.png",
+      "showers": "https://cdn-icons-png.flaticon.com/512/1146/1146858.png",
+      "thunderstorm": "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
+      "snow": "https://cdn-icons-png.flaticon.com/512/642/642102.png",
+      "flurries": "https://cdn-icons-png.flaticon.com/512/642/642102.png",
+      "sleet": "https://cdn-icons-png.flaticon.com/512/2620/2620490.png",
+      "windy": "https://cdn-icons-png.flaticon.com/512/4005/4005801.png",
+      "blizzard": "https://cdn-icons-png.flaticon.com/512/4005/4005829.png"
     };
 
     function getIcon(description) {
-      for (const key in iconMap) {
-        if (description.toLowerCase().includes(key.toLowerCase())) {
-          return iconMap[key];
-        }
+      const desc = description.toLowerCase();
+      for (const [key, url] of Object.entries(iconMap)) {
+        if (desc.includes(key)) return url;
       }
-      return iconMap["Clear"];
+      return iconMap["cloudy"];
     }
 
     async function fetchWeather() {
@@ -96,18 +100,11 @@
         const temp = Math.round(data.current.temperature);
         document.getElementById("temp").textContent = `${temp}°F`;
         document.getElementById("description").textContent = data.current.shortForecast;
-
-        const currentIcon = document.getElementById("current-icon");
-        currentIcon.innerHTML = `
-          <video autoplay muted loop playsinline class="icon-large">
-            <source src="${getIcon(data.current.shortForecast)}" type="video/mp4">
-          </video>
-        `;
+        document.getElementById("current-icon").src = getIcon(data.current.shortForecast);
 
         const forecastDiv = document.getElementById("forecast");
         forecastDiv.innerHTML = "";
 
-        // Grab next 3 daytime periods (skip night)
         const filtered = data.forecast.filter(period => !period.name.toLowerCase().includes("night"));
 
         for (let i = 0; i < 3 && i < filtered.length; i++) {
@@ -117,9 +114,7 @@
           forecastDiv.innerHTML += `
             <div class="forecast-day">
               <div>${dayName}</div>
-              <video autoplay muted loop playsinline>
-                <source src="${getIcon(day.shortForecast)}" type="video/mp4">
-              </video>
+              <img src="${getIcon(day.shortForecast)}" alt="${day.shortForecast}">
               <div>${day.temperature}°</div>
             </div>
           `;
