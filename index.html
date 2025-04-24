@@ -10,101 +10,124 @@
       padding: 0;
       background: linear-gradient(to bottom, #0c0c0c, #1a1a1a);
       font-family: 'Segoe UI', sans-serif;
-      color: white;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       text-align: center;
     }
     .main-temp {
       font-size: 64px;
+      font-weight: bold;
       margin: 0;
     }
-    .description {
+    .condition {
       font-size: 24px;
       color: #f9c74f;
+      margin-bottom: 10px;
     }
-    .current-icon {
-      width: 96px;
-      margin: 20px 0;
+    .icon-large {
+      width: 100px;
+      height: 100px;
     }
     .forecast {
       display: flex;
       justify-content: center;
-      gap: 24px;
-      margin-top: 24px;
+      margin-top: 20px;
     }
     .forecast-day {
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-size: 16px;
+      margin: 0 10px;
     }
+    .forecast-day video,
     .forecast-day img {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 8px;
+      width: 60px;
+      height: 60px;
+    }
+    .error {
+      color: #f94144;
+      font-size: 16px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div>
-    <h1 class="main-temp" id="temp">--°F</h1>
-    <div class="description" id="description">Loading...</div>
-    <img id="currentIcon" class="current-icon" src="" alt="">
-    <div class="forecast" id="forecast"></div>
-  </div>
+  <h1 class="main-temp" id="temp">--°F</h1>
+  <div class="condition" id="description">Loading...</div>
+  <div id="current-icon"></div>
+  <div class="forecast" id="forecast"></div>
+  <div class="error" id="error"></div>
 
   <script>
+    const url = "https://your-replit-weather-proxy-url.replit.dev/weather";
+
     const iconMap = {
-      "clear": "https://cdn-icons-png.flaticon.com/512/3222/3222800.png",
-      "partly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163661.png",
-      "mostly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
-      "cloudy": "https://cdn-icons-png.flaticon.com/512/414/414825.png",
-      "light rain": "https://cdn-icons-png.flaticon.com/512/2415/2415413.png",
-      "rain": "https://cdn-icons-png.flaticon.com/512/3351/3351979.png",
-      "heavy rain": "https://cdn-icons-png.flaticon.com/512/2739/2739984.png",
-      "chance showers": "https://cdn-icons-png.flaticon.com/512/4005/4005901.png",
-      "showers": "https://cdn-icons-png.flaticon.com/512/1163/1163626.png",
-      "slight chance showers": "https://cdn-icons-png.flaticon.com/512/1197/1197102.png",
-      "thunderstorm": "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
-      "snow": "https://cdn-icons-png.flaticon.com/512/3208/3208707.png",
-      "sleet": "https://cdn-icons-png.flaticon.com/512/1779/1779933.png",
-      "windy": "https://cdn-icons-png.flaticon.com/512/3500/3500576.png",
-      "fog": "https://cdn-icons-png.flaticon.com/512/4005/4005891.png"
+      "Sunny": "https://cdn-icons-mp4.flaticon.com/512/11708/11708870.mp4",
+      "Clear": "https://cdn-icons-mp4.flaticon.com/512/11708/11708870.mp4",
+      "Cloudy": "https://cdn-icons-mp4.flaticon.com/512/11708/11708862.mp4",
+      "Partly Cloudy": "https://cdn-icons-mp4.flaticon.com/512/11708/11708863.mp4",
+      "Mostly Cloudy": "https://cdn-icons-mp4.flaticon.com/512/11708/11708863.mp4",
+      "Rain": "https://cdn-icons-mp4.flaticon.com/512/11708/11708867.mp4",
+      "Showers": "https://cdn-icons-mp4.flaticon.com/512/11708/11708867.mp4",
+      "Thunderstorms": "https://cdn-icons-mp4.flaticon.com/512/11708/11708866.mp4",
+      "Snow": "https://cdn-icons-mp4.flaticon.com/512/11708/11708868.mp4",
+      "Fog": "https://cdn-icons-mp4.flaticon.com/512/11708/11708865.mp4"
     };
 
-    const getIconURL = (description) => {
-      const key = description.toLowerCase();
-      return iconMap[Object.keys(iconMap).find(k => key.includes(k))] || iconMap["cloudy"];
-    };
+    function getIcon(description) {
+      for (const key in iconMap) {
+        if (description.toLowerCase().includes(key.toLowerCase())) {
+          return iconMap[key];
+        }
+      }
+      return iconMap["Clear"];
+    }
 
     async function fetchWeather() {
       try {
-        const response = await fetch("https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather");
-        const data = await response.json();
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch weather");
+        const data = await res.json();
 
-        document.getElementById("temp").textContent = `${Math.round(data.current.temperature)}°F`;
+        const temp = Math.round(data.current.temperature);
+        document.getElementById("temp").textContent = `${temp}°F`;
         document.getElementById("description").textContent = data.current.shortForecast;
-        document.getElementById("currentIcon").src = getIconURL(data.current.shortForecast);
-        document.getElementById("currentIcon").alt = data.current.shortForecast;
+
+        const currentIcon = document.getElementById("current-icon");
+        currentIcon.innerHTML = `
+          <video autoplay muted loop playsinline class="icon-large">
+            <source src="${getIcon(data.current.shortForecast)}" type="video/mp4">
+          </video>
+        `;
 
         const forecastDiv = document.getElementById("forecast");
         forecastDiv.innerHTML = "";
 
-        data.forecast.forEach(day => {
-          const icon = getIconURL(day.shortForecast);
-          const temp = `${day.high}° / ${day.low}°`;
+        // Grab next 3 daytime periods (skip night)
+        const filtered = data.forecast.filter(period => !period.name.toLowerCase().includes("night"));
+
+        for (let i = 0; i < 3 && i < filtered.length; i++) {
+          const day = filtered[i];
+          const dayName = new Date(day.startTime).toLocaleDateString('en-US', { weekday: 'short' });
 
           forecastDiv.innerHTML += `
             <div class="forecast-day">
-              <div>${day.name.slice(0, 3)}</div>
-              <img src="${icon}" alt="${day.shortForecast}">
-              <div>${temp}</div>
+              <div>${dayName}</div>
+              <video autoplay muted loop playsinline>
+                <source src="${getIcon(day.shortForecast)}" type="video/mp4">
+              </video>
+              <div>${day.temperature}°</div>
             </div>
           `;
-        });
-
-      } catch (error) {
-        console.error("Weather Fetch Error:", error);
-        document.getElementById("description").textContent = "Error loading data";
+        }
+      } catch (err) {
+        console.error("Weather Fetch Error:", err.message);
+        document.getElementById("error").textContent = "Failed to load weather data.";
+        document.getElementById("description").textContent = "Check connection or proxy.";
       }
     }
 
