@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kraken Weather Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0c0c0c;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 240px;
+      width: 240px;
+      overflow: hidden;
+    }
+    .weather-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+    }
+    .active {
+      display: flex;
+    }
+    .temp {
+      font-size: 40px;
+      font-weight: bold;
+    }
+    .desc {
+      font-size: 16px;
+      color: #f9c74f;
+      margin-bottom: 10px;
+    }
+    .icon {
+      width: 60px;
+      height: 60px;
+    }
+    .hi-lo {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="section0" class="weather-section active">
+    <div class="temp" id="currentTemp"></div>
+    <div class="desc" id="currentDesc"></div>
+    <img id="currentIcon" class="icon" src="" alt="Current Icon">
+  </div>
+  <div id="section1" class="weather-section">
+    <div class="hi-lo" id="day1Temp"></div>
+    <div class="desc" id="day1Desc"></div>
+    <img id="day1Icon" class="icon" src="" alt="Day 1 Icon">
+  </div>
+  <div id="section2" class="weather-section">
+    <div class="hi-lo" id="day2Temp"></div>
+    <div class="desc" id="day2Desc"></div>
+    <img id="day2Icon" class="icon" src="" alt="Day 2 Icon">
+  </div>
+  <div id="section3" class="weather-section">
+    <div class="hi-lo" id="day3Temp"></div>
+    <div class="desc" id="day3Desc"></div>
+    <img id="day3Icon" class="icon" src="" alt="Day 3 Icon">
+  </div>
+
+  <script>
+    const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
+
+    async function fetchWeather() {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        document.getElementById("currentTemp").textContent = `${data.current.temperature}°F`;
+        document.getElementById("currentDesc").textContent = data.current.shortForecast;
+        document.getElementById("currentIcon").src = data.current.icon;
+
+        data.forecast.forEach((day, index) => {
+          if (index > 2) return;
+          document.getElementById(`day${index + 1}Temp`).textContent = `${day.tempHigh}° / ${day.tempLow}°`;
+          document.getElementById(`day${index + 1}Desc`).textContent = day.shortForecast;
+          document.getElementById(`day${index + 1}Icon`).src = day.icon;
+        });
+      } catch (err) {
+        console.error("Weather Fetch Error:", err);
+      }
+    }
+
+    fetchWeather();
+
+    let currentIndex = 0;
+    setInterval(() => {
+      document.getElementById(`section${currentIndex}`).classList.remove("active");
+      currentIndex = (currentIndex + 1) % 4;
+      document.getElementById(`section${currentIndex}`).classList.add("active");
+    }, 15000);
+  </script>
+</body>
+</html>
