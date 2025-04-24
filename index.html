@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kraken Weather Display</title>
   <style>
     body {
@@ -18,10 +18,6 @@
       height: 100vh;
       text-align: center;
     }
-    .weather-container {
-      max-width: 800px;
-      padding: 20px;
-    }
     .main-temp {
       font-size: 64px;
       margin: 0;
@@ -29,91 +25,83 @@
     .condition {
       font-size: 24px;
       color: #f9c74f;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
-    .current-icon {
-      max-width: 128px;
-      max-height: 128px;
+    .weather-icon {
+      width: 96px;
+      height: 96px;
     }
     .forecast {
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
+      gap: 20px;
       margin-top: 20px;
     }
     .forecast-day {
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-size: 16px;
     }
     .forecast-day img {
-      width: 64px;
-      height: 64px;
+      width: 48px;
+      height: 48px;
+    }
+    .temp-range {
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <div class="weather-container">
-    <h1 class="main-temp" id="temp">--°F</h1>
-    <div class="condition" id="description">Loading...</div>
-    <img id="current-icon" class="current-icon" src="" alt="Current icon" />
-    <div class="forecast" id="forecast"></div>
-  </div>
+  <h1 class="main-temp" id="temp">--°F</h1>
+  <div class="condition" id="description">Loading...</div>
+  <img id="main-icon" class="weather-icon" src="" alt="">
+  <div class="forecast" id="forecast"></div>
+
   <script>
     const iconMap = {
-      "clear": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
-      "sunny": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
-      "cloud": "https://cdn-icons-png.flaticon.com/512/414/414825.png",
-      "rain": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
-      "showers": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
-      "thunder": "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
-      "snow": "https://cdn-icons-png.flaticon.com/512/642/642102.png",
-      "fog": "https://cdn-icons-png.flaticon.com/512/1197/1197102.png",
-      "wind": "https://cdn-icons-png.flaticon.com/512/1113/1113754.png"
+      "Clear": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+      "Partly Cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "Cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163629.png",
+      "Rain": "https://cdn-icons-png.flaticon.com/512/1163/1163657.png",
+      "Showers": "https://cdn-icons-png.flaticon.com/512/1163/1163661.png",
+      "Snow": "https://cdn-icons-png.flaticon.com/512/1163/1163636.png",
+      "Thunderstorm": "https://cdn-icons-png.flaticon.com/512/1163/1163660.png",
+      "Fog": "https://cdn-icons-png.flaticon.com/512/1163/1163643.png"
     };
 
-    const fuzzyMatchIcon = (description) => {
+    function fuzzyMatchIcon(description) {
       const lower = description.toLowerCase();
       for (const key in iconMap) {
-        if (lower.includes(key)) return iconMap[key];
+        if (lower.includes(key.toLowerCase())) return iconMap[key];
       }
-      return iconMap["cloud"];
-    };
+      return iconMap["Cloudy"];
+    }
 
     async function fetchWeather() {
       try {
-        const res = await fetch("https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather");
-        if (!res.ok) throw new Error("Failed to fetch weather");
+        const res = await fetch('https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather');
         const data = await res.json();
 
-        // Current weather
+        // Update current weather
         document.getElementById('temp').textContent = `${Math.round(data.current.temperature)}°F`;
         document.getElementById('description').textContent = data.current.shortForecast;
-        document.getElementById('current-icon').src = fuzzyMatchIcon(data.current.shortForecast);
+        document.getElementById('main-icon').src = fuzzyMatchIcon(data.current.shortForecast);
 
-        // Forecast
+        // Update forecast
         const forecastDiv = document.getElementById('forecast');
         forecastDiv.innerHTML = "";
-        const filtered = data.forecast.filter(p => !p.name.toLowerCase().includes("night"));
 
-        for (let i = 0; i < 3 && i < filtered.length; i++) {
-          const day = filtered[i];
-          const name = new Date(day.startTime).toLocaleDateString('en-US', { weekday: 'short' });
-          const icon = fuzzyMatchIcon(day.shortForecast);
-
-          const lowMatch = data.forecast.find(p => p.name.toLowerCase() === (day.name + ' Night').toLowerCase());
-          const low = lowMatch ? `/${Math.round(lowMatch.temperature)}°` : "";
-
+        data.forecast.forEach(f => {
           forecastDiv.innerHTML += `
             <div class="forecast-day">
-              <div>${name}</div>
-              <img src="${icon}" alt="${day.shortForecast}" />
-              <div>${Math.round(day.temperature)}°${low}</div>
+              <div>${f.name}</div>
+              <img src="${f.icon}" alt="">
+              <div class="temp-range">${f.low}° / ${f.high}°</div>
             </div>
           `;
-        }
+        });
       } catch (err) {
-        console.error("Weather Fetch Error:", err.message);
+        console.error("Weather Fetch Error:", err);
         document.getElementById("description").textContent = "Failed to load weather data.";
       }
     }
