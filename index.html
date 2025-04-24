@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kraken Weather Display</title>
   <style>
     body {
@@ -19,7 +19,7 @@
       text-align: center;
     }
     .weather-container {
-      max-width: 300px;
+      max-width: 800px;
       padding: 20px;
     }
     .main-temp {
@@ -29,26 +29,26 @@
     .condition {
       font-size: 24px;
       color: #f9c74f;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    .current-icon {
+      max-width: 128px;
+      max-height: 128px;
     }
     .forecast {
       display: flex;
       justify-content: space-around;
-      font-size: 18px;
+      margin-top: 20px;
     }
     .forecast-day {
       display: flex;
       flex-direction: column;
       align-items: center;
+      font-size: 16px;
     }
     .forecast-day img {
-      width: 48px;
-      height: 48px;
-    }
-    .error {
-      color: #f94144;
-      font-size: 16px;
-      margin-top: 10px;
+      width: 64px;
+      height: 64px;
     }
   </style>
 </head>
@@ -56,77 +56,65 @@
   <div class="weather-container">
     <h1 class="main-temp" id="temp">--°F</h1>
     <div class="condition" id="description">Loading...</div>
-    <img id="current-icon" src="" alt="" />
+    <img id="current-icon" class="current-icon" src="" alt="Current icon" />
     <div class="forecast" id="forecast"></div>
-    <div class="error" id="error"></div>
   </div>
-
   <script>
-    const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather"; // Replace with your actual Replit proxy URL
-
     const iconMap = {
-      "partly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
-      "cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163629.png",
-      "mostly sunny": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+      "clear": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
       "sunny": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
-      "chance showers": "https://cdn-icons-png.flaticon.com/512/1163/1163626.png",
-      "showers": "https://cdn-icons-png.flaticon.com/512/1163/1163626.png",
-      "rain": "https://cdn-icons-png.flaticon.com/512/1163/1163626.png",
+      "cloud": "https://cdn-icons-png.flaticon.com/512/414/414825.png",
+      "rain": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "showers": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "thunder": "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
       "snow": "https://cdn-icons-png.flaticon.com/512/642/642102.png",
-      "thunderstorm": "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
-      "windy": "https://cdn-icons-png.flaticon.com/512/1208/1208542.png",
-      "fog": "https://cdn-icons-png.flaticon.com/512/1146/1146861.png",
-      "clear": "https://cdn-icons-png.flaticon.com/512/869/869869.png"
+      "fog": "https://cdn-icons-png.flaticon.com/512/1197/1197102.png",
+      "wind": "https://cdn-icons-png.flaticon.com/512/1113/1113754.png"
     };
 
-    function getFuzzyIcon(description) {
-      if (!description) return '';
+    const fuzzyMatchIcon = (description) => {
       const lower = description.toLowerCase();
       for (const key in iconMap) {
-        if (lower.includes(key)) {
-          return iconMap[key];
-        }
+        if (lower.includes(key)) return iconMap[key];
       }
-      return iconMap["clear"];
-    }
+      return iconMap["cloud"];
+    };
 
     async function fetchWeather() {
       try {
-        const res = await fetch(url);
+        const res = await fetch("https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather");
         if (!res.ok) throw new Error("Failed to fetch weather");
         const data = await res.json();
 
-        // Current conditions
+        // Current weather
         document.getElementById('temp').textContent = `${Math.round(data.current.temperature)}°F`;
         document.getElementById('description').textContent = data.current.shortForecast;
-        document.getElementById('current-icon').src = getFuzzyIcon(data.current.shortForecast);
+        document.getElementById('current-icon').src = fuzzyMatchIcon(data.current.shortForecast);
 
-        // Forecast (every other day, starting from 0)
+        // Forecast
         const forecastDiv = document.getElementById('forecast');
         forecastDiv.innerHTML = "";
-        let count = 0;
-        for (let i = 0; i < data.forecast.length && count < 3; i++) {
-          const period = data.forecast[i];
-          if (period.name.toLowerCase().includes('night')) continue;
+        const filtered = data.forecast.filter(p => !p.name.toLowerCase().includes("night"));
 
-          const dayName = period.name.slice(0, 3);
-          const icon = getFuzzyIcon(period.shortForecast);
-          const temp = `${period.temperature}°`;
+        for (let i = 0; i < 3 && i < filtered.length; i++) {
+          const day = filtered[i];
+          const name = new Date(day.startTime).toLocaleDateString('en-US', { weekday: 'short' });
+          const icon = fuzzyMatchIcon(day.shortForecast);
+
+          const lowMatch = data.forecast.find(p => p.name.toLowerCase() === (day.name + ' Night').toLowerCase());
+          const low = lowMatch ? `/${Math.round(lowMatch.temperature)}°` : "";
 
           forecastDiv.innerHTML += `
             <div class="forecast-day">
-              <div>${dayName}</div>
-              <img src="${icon}" alt="${period.shortForecast}">
-              <div>${temp}</div>
+              <div>${name}</div>
+              <img src="${icon}" alt="${day.shortForecast}" />
+              <div>${Math.round(day.temperature)}°${low}</div>
             </div>
           `;
-
-          count++;
         }
       } catch (err) {
         console.error("Weather Fetch Error:", err.message);
-        document.getElementById("error").textContent = "Failed to load weather data.";
-        document.getElementById("description").textContent = "Check connection or proxy.";
+        document.getElementById("description").textContent = "Failed to load weather data.";
       }
     }
 
