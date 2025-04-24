@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kraken Weather Display</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0c0c0c;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 240px;
+      width: 240px;
+      overflow: hidden;
+      position: relative;
+    }
+    .weather-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      position: absolute;
+    }
+    .active {
+      display: flex;
+    }
+    .gauge-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 120px;
+      width: 120px;
+      position: absolute;
+    }
+    .gauge-condition {
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .gauge-temp {
+      font-size: 32px;
+      font-weight: bold;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div id="section0" class="weather-section active">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" stroke="#333" stroke-width="10" fill="none" />
+      <circle id="progressCircle" cx="60" cy="60" r="50" stroke="#e600ff" stroke-width="10" fill="none"
+              stroke-dasharray="314" stroke-dashoffset="100" stroke-linecap="round" />
+    </svg>
+    <div class="gauge-overlay">
+      <div class="gauge-condition" id="currentDesc">Clear</div>
+      <div class="gauge-temp" id="currentTemp">66°</div>
+    </div>
+  </div>
+
+  <script>
+    function setGauge(temp) {
+      const maxTemp = 100;
+      const minTemp = -10;
+      const fullDash = 314; // circumference of the circle
+      const percent = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
+      const offset = fullDash * (1 - percent);
+      const circle = document.getElementById('progressCircle');
+
+      circle.setAttribute('stroke-dashoffset', offset);
+
+      if (temp >= 80) {
+        circle.setAttribute('stroke', '#e63946'); // red for hot
+      } else if (temp >= 60) {
+        circle.setAttribute('stroke', '#f9c74f'); // yellow for warm
+      } else if (temp >= 40) {
+        circle.setAttribute('stroke', '#00b4d8'); // blue for cool
+      } else {
+        circle.setAttribute('stroke', '#457b9d'); // deeper blue for cold
+      }
+    }
+
+    // Example update function
+    function updateWeather(temp, condition) {
+      document.getElementById('currentTemp').textContent = `${temp}°`;
+      document.getElementById('currentDesc').textContent = condition;
+      setGauge(temp);
+    }
+
+    updateWeather(66, 'Clear');
+  </script>
+</body>
+</html>
