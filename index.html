@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kraken Weather Display</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
@@ -46,25 +46,34 @@
     .hi-lo {
       font-size: 18px;
     }
+    .day-name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
   </style>
 </head>
 <body>
   <div id="section0" class="weather-section active">
+    <div class="day">Current</div>
     <div class="temp" id="currentTemp"></div>
     <div class="desc" id="currentDesc"></div>
     <img id="currentIcon" class="icon" src="" alt="Current Icon">
   </div>
   <div id="section1" class="weather-section">
+    <div class="day-name" id="day1Name"></div>
     <div class="hi-lo" id="day1Temp"></div>
     <div class="desc" id="day1Desc"></div>
     <img id="day1Icon" class="icon" src="" alt="Day 1 Icon">
   </div>
   <div id="section2" class="weather-section">
+    <div class="day-name" id="day2Name"></div>
     <div class="hi-lo" id="day2Temp"></div>
     <div class="desc" id="day2Desc"></div>
     <img id="day2Icon" class="icon" src="" alt="Day 2 Icon">
   </div>
   <div id="section3" class="weather-section">
+    <div class="day-name" id="day3Name"></div>
     <div class="hi-lo" id="day3Temp"></div>
     <div class="desc" id="day3Desc"></div>
     <img id="day3Icon" class="icon" src="" alt="Day 3 Icon">
@@ -84,9 +93,11 @@
 
         data.forecast.forEach((day, index) => {
           if (index > 2) return;
-          document.getElementById(`day${index + 1}Temp`).textContent = `${day.tempHigh}° / ${day.tempLow}°`;
-          document.getElementById(`day${index + 1}Desc`).textContent = day.shortForecast;
-          document.getElementById(`day${index + 1}Icon`).src = day.icon;
+          const i = index + 1;
+          document.getElementById(`day${i}Name`).textContent = day.name;
+          document.getElementById(`day${i}Temp`).textContent = `${day.tempHigh}° / ${day.tempLow}°`;
+          document.getElementById(`day${i}Desc`).textContent = day.shortForecast;
+          document.getElementById(`day${i}Icon`).src = day.icon;
         });
       } catch (err) {
         console.error("Weather Fetch Error:", err);
