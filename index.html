@@ -8,101 +8,103 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(#0c0c0c, #1a1a1a);
+      background: linear-gradient(to bottom, #0c0c0c, #1a1a1a);
       font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      color: white;
       text-align: center;
     }
     .main-temp {
       font-size: 64px;
       margin: 0;
     }
-    .condition {
+    .description {
       font-size: 24px;
       color: #f9c74f;
-      margin-bottom: 10px;
     }
-    .weather-icon {
+    .current-icon {
       width: 96px;
-      height: 96px;
+      margin: 20px 0;
     }
     .forecast {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
+      gap: 24px;
+      margin-top: 24px;
     }
     .forecast-day {
       display: flex;
       flex-direction: column;
       align-items: center;
+      font-size: 16px;
     }
     .forecast-day img {
-      width: 48px;
-      height: 48px;
-    }
-    .temp-range {
-      font-size: 16px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
-  <h1 class="main-temp" id="temp">--°F</h1>
-  <div class="condition" id="description">Loading...</div>
-  <img id="main-icon" class="weather-icon" src="" alt="">
-  <div class="forecast" id="forecast"></div>
+  <div>
+    <h1 class="main-temp" id="temp">--°F</h1>
+    <div class="description" id="description">Loading...</div>
+    <img id="currentIcon" class="current-icon" src="" alt="">
+    <div class="forecast" id="forecast"></div>
+  </div>
 
   <script>
     const iconMap = {
-      "Clear": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
-      "Partly Cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
-      "Cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163629.png",
-      "Rain": "https://cdn-icons-png.flaticon.com/512/1163/1163657.png",
-      "Showers": "https://cdn-icons-png.flaticon.com/512/1163/1163661.png",
-      "Snow": "https://cdn-icons-png.flaticon.com/512/1163/1163636.png",
-      "Thunderstorm": "https://cdn-icons-png.flaticon.com/512/1163/1163660.png",
-      "Fog": "https://cdn-icons-png.flaticon.com/512/1163/1163643.png"
+      "clear": "https://cdn-icons-png.flaticon.com/512/3222/3222800.png",
+      "partly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163661.png",
+      "mostly cloudy": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "cloudy": "https://cdn-icons-png.flaticon.com/512/414/414825.png",
+      "light rain": "https://cdn-icons-png.flaticon.com/512/2415/2415413.png",
+      "rain": "https://cdn-icons-png.flaticon.com/512/3351/3351979.png",
+      "heavy rain": "https://cdn-icons-png.flaticon.com/512/2739/2739984.png",
+      "chance showers": "https://cdn-icons-png.flaticon.com/512/4005/4005901.png",
+      "showers": "https://cdn-icons-png.flaticon.com/512/1163/1163626.png",
+      "slight chance showers": "https://cdn-icons-png.flaticon.com/512/1197/1197102.png",
+      "thunderstorm": "https://cdn-icons-png.flaticon.com/512/1146/1146860.png",
+      "snow": "https://cdn-icons-png.flaticon.com/512/3208/3208707.png",
+      "sleet": "https://cdn-icons-png.flaticon.com/512/1779/1779933.png",
+      "windy": "https://cdn-icons-png.flaticon.com/512/3500/3500576.png",
+      "fog": "https://cdn-icons-png.flaticon.com/512/4005/4005891.png"
     };
 
-    function fuzzyMatchIcon(description) {
-      const lower = description.toLowerCase();
-      for (const key in iconMap) {
-        if (lower.includes(key.toLowerCase())) return iconMap[key];
-      }
-      return iconMap["Cloudy"];
-    }
+    const getIconURL = (description) => {
+      const key = description.toLowerCase();
+      return iconMap[Object.keys(iconMap).find(k => key.includes(k))] || iconMap["cloudy"];
+    };
 
     async function fetchWeather() {
       try {
-        const res = await fetch('https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather');
-        const data = await res.json();
+        const response = await fetch("https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather");
+        const data = await response.json();
 
-        // Update current weather
-        document.getElementById('temp').textContent = `${Math.round(data.current.temperature)}°F`;
-        document.getElementById('description').textContent = data.current.shortForecast;
-        document.getElementById('main-icon').src = fuzzyMatchIcon(data.current.shortForecast);
+        document.getElementById("temp").textContent = `${Math.round(data.current.temperature)}°F`;
+        document.getElementById("description").textContent = data.current.shortForecast;
+        document.getElementById("currentIcon").src = getIconURL(data.current.shortForecast);
+        document.getElementById("currentIcon").alt = data.current.shortForecast;
 
-        // Update forecast
-        const forecastDiv = document.getElementById('forecast');
+        const forecastDiv = document.getElementById("forecast");
         forecastDiv.innerHTML = "";
 
-        data.forecast.forEach(f => {
+        data.forecast.forEach(day => {
+          const icon = getIconURL(day.shortForecast);
+          const temp = `${day.high}° / ${day.low}°`;
+
           forecastDiv.innerHTML += `
             <div class="forecast-day">
-              <div>${f.name}</div>
-              <img src="${f.icon}" alt="">
-              <div class="temp-range">${f.low}° / ${f.high}°</div>
+              <div>${day.name.slice(0, 3)}</div>
+              <img src="${icon}" alt="${day.shortForecast}">
+              <div>${temp}</div>
             </div>
           `;
         });
-      } catch (err) {
-        console.error("Weather Fetch Error:", err);
-        document.getElementById("description").textContent = "Failed to load weather data.";
+
+      } catch (error) {
+        console.error("Weather Fetch Error:", error);
+        document.getElementById("description").textContent = "Error loading data";
       }
     }
 
