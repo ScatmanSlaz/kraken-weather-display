@@ -5,18 +5,52 @@
   <meta name="viewport" content="width=240, height=240, initial-scale=1.0">
   <title>Kraken Weather Display</title>
   <style>
-    body {
+      body {
       margin: 0;
       padding: 0;
       background: #0c0c0c;
       font-family: 'Segoe UI', sans-serif;
       color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 240px;
       width: 240px;
       overflow: hidden;
+    }
+    .weather-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+    }
+    .active {
+      display: flex;
+    }
+    .temp {
+      font-size: 64px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+    .desc {
+      font-size: 16px;
+      color: #f9c74f;
+      margin-bottom: 10px;
+    }
+    .icon {
+      width: 60px;
+      height: 60px;
+    }
+    .hi-lo {
+      font-size: 18px;
+    }
+    .day-name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
     }
     .weather-ring {
       position: relative;
