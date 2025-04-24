@@ -15,47 +15,53 @@
       flex-direction: column;
       align-items: center;
       justify-content: start;
-      min-height: 100vh;
+      height: 240px;
+      width: 240px;
       text-align: center;
       overflow: hidden;
     }
     .weather-container {
       width: 100%;
-      max-width: 480px;
-      padding: 10px 20px;
+      height: 100%;
+      padding: 5px;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .main-temp {
-      font-size: 64px;
+      font-size: 32px;
       margin: 0;
     }
     .condition {
-      font-size: 24px;
+      font-size: 14px;
       color: #f9c74f;
-      margin-bottom: 10px;
+    }
+    .weather-icon {
+      width: 48px;
+      height: 48px;
+      margin: 4px auto;
     }
     .forecast {
       display: flex;
-      justify-content: space-evenly;
-      font-size: 14px;
-      margin-top: 20px;
+      justify-content: space-between;
+      font-size: 10px;
+      margin-top: 5px;
     }
     .forecast-day {
-      font-variant-numeric: tabular-nums;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      padding: 0 10px;
+      gap: 2px;
+      padding: 0 2px;
     }
     .forecast-day img {
-      width: 48px;
-      height: 48px;
+      width: 32px;
+      height: 32px;
     }
     .error {
       color: #f94144;
-      font-size: 16px;
-      margin-top: 10px;
+      font-size: 10px;
     }
   </style>
 </head>
@@ -63,12 +69,12 @@
   <div class="weather-container">
     <h1 class="main-temp" id="temp">--°F</h1>
     <div class="condition" id="description">Loading...</div>
-    <div id="current-icon"></div>
+    <img class="weather-icon" id="main-icon" src="" alt="">
     <div class="forecast" id="forecast"></div>
     <div class="error" id="error"></div>
   </div>
 
-  <script>
+   <script>
     const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
 
     async function fetchWeather() {
@@ -79,7 +85,7 @@
 
         document.getElementById('temp').textContent = `${data.current.temperature}°F`;
         document.getElementById('description').textContent = data.current.shortForecast;
-        document.getElementById('current-icon').innerHTML = `<img src="${data.current.icon}" alt="Current Weather Icon">`;
+        document.getElementById('main-icon').src = data.current.icon;
 
         const forecastDiv = document.getElementById('forecast');
         forecastDiv.innerHTML = "";
@@ -89,13 +95,13 @@
             <div class="forecast-day">
               <div>${day.name}</div>
               <img src="${day.icon}" alt="${day.shortForecast}">
-              <div>${day.tempHigh}° / ${day.tempLow}° </div>
+              <div>${day.tempHigh}° / ${day.tempLow}°</div>
             </div>
           `;
         });
 
       } catch (err) {
-        console.error("Weather Fetch Error:", err);
+        console.error("Weather Fetch Error:", err.message);
         document.getElementById("error").textContent = "Failed to load weather data.";
         document.getElementById("description").textContent = "Check connection or proxy.";
       }
