@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=240, height=240, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kraken Weather Display</title>
   <style>
     body {
@@ -12,6 +12,7 @@
       font-family: 'Segoe UI', sans-serif;
       color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 240px;
@@ -23,7 +24,7 @@
       width: 240px;
       height: 240px;
       border-radius: 50%;
-      background: conic-gradient(#c027fc 0% 0%, #333 0% 100%);
+      background: conic-gradient(#fff 0% 0%, #333 0% 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -41,11 +42,11 @@
       text-align: center;
     }
     .condition {
-      font-size: 40px;
+      font-size: 18px;
       font-weight: 600;
     }
     .temp {
-      font-size: 64px;
+      font-size: 48px;
       font-weight: bold;
       margin-top: 4px;
     }
@@ -54,76 +55,50 @@
 <body>
   <div class="weather-ring" id="ring">
     <div class="weather-inner">
-      <div class="condition" id="condition">Loading</div>
-      <div class="temp" id="temp">--°</div>
+      <div class="condition" id="currentCondition">Clear</div>
+      <div class="temp" id="currentTemp">66°F</div>
     </div>
   </div>
+
   <script>
-    // 🔧 NEW: Color Interpolation Functions for gradient ring
-    function getRingGradient(temp) {
+    function calculateTemperatureColor(tempF) {
+      // 🔧 NEW: Normalize between -20°F and 110°F
       const minTemp = -20;
       const maxTemp = 110;
-      const percent = Math.max(0, Math.min(1, (temp - minTemp) / (maxTemp - minTemp))) * 100;
+      const clamped = Math.max(minTemp, Math.min(maxTemp, tempF));
+      const percent = (clamped - minTemp) / (maxTemp - minTemp);
 
-      let color = "#ffffff"; // Default to white
-
-      if (temp <= 32) {
-        const t = (temp - minTemp) / (32 - minTemp);
-        color = interpolateColor("#ffffff", "#00bfff", t);
+      // Define gradient zones: white -> blue -> red
+      let r, g, b;
+      if (percent < 0.4) {
+        // White to Blue
+        const p = percent / 0.4;
+        r = 255 * (1 - p);
+        g = 255 * (1 - p);
+        b = 255;
       } else {
-        const t = (temp - 32) / (maxTemp - 32);
-        color = interpolateColor("#00bfff", "#ff4500", t);
+        // Blue to Red
+        const p = (percent - 0.4) / 0.6;
+        r = 255 * p;
+        g = 0;
+        b = 255 * (1 - p);
       }
 
-      return `conic-gradient(${color} 0% ${percent}%, #333 ${percent}% 100%)`;
+      return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
     }
 
-    function interpolateColor(color1, color2, factor) {
-      const c1 = hexToRgb(color1);
-      const c2 = hexToRgb(color2);
-      const result = {
-        r: Math.round(c1.r + (c2.r - c1.r) * factor),
-        g: Math.round(c1.g + (c2.g - c1.g) * factor),
-        b: Math.round(c1.b + (c2.b - c1.b) * factor)
-      };
-      return `rgb(${result.r}, ${result.g}, ${result.b})`;
+    function updateWeatherDisplay(tempF, condition) {
+      document.getElementById('currentTemp').textContent = `${tempF}°F`;
+      document.getElementById('currentCondition').textContent = condition;
+      const ring = document.getElementById('ring');
+      const color = calculateTemperatureColor(tempF);
+      ring.style.background = `conic-gradient(${color} 0% 25%, #333 25% 100%)`;
     }
 
-    function hexToRgb(hex) {
-      const h = hex.replace('#', '');
-      return {
-        r: parseInt(h.substring(0, 2), 16),
-        g: parseInt(h.substring(2, 4), 16),
-        b: parseInt(h.substring(4, 6), 16)
-      };
-    }
-
-    // 🔁 Main Weather Logic
-    async function fetchWeather() {
-      try {
-        const res = await fetch("https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather");
-        if (!res.ok) throw new Error("Failed to fetch weather");
-        const data = await res.json();
-
-        const temp = data.current.temperature;
-        const condition = data.current.shortForecast;
-        updateWeather(temp, condition);
-      } catch (err) {
-        console.error("Weather Fetch Error:", err);
-      }
-    }
-
-    // 📍 Update Weather and Ring
-    function updateWeather(temp, condition) {
-      document.getElementById("temp").textContent = `${Math.round(temp)}°`;
-      document.getElementById("condition").textContent = condition;
-
-      const ring = document.getElementById("ring");
-      ring.style.background = getRingGradient(temp); // 🔄 Set dynamic gradient
-    }
-
-    fetchWeather();
-    setInterval(fetchWeather, 60000); // Update every 60 seconds
+    // 🔧 NEW: Example call, replace with your own live data fetch logic
+    const exampleTemp = 0;
+    const exampleCondition = "Liquid";
+    updateWeatherDisplay(exampleTemp, exampleCondition);
   </script>
 </body>
 </html>
