@@ -6,51 +6,65 @@
   <title>Kraken Weather Display</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: #0c0c0c;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 240px;
-      width: 240px;
-      overflow: hidden;
-    }
-    .weather-section {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-    }
-    .active {
-      display: flex;
-    }
-    .temp {
-      font-size: 40px;
-      font-weight: bold;
-    }
-    .desc {
-      font-size: 16px;
-      color: #f9c74f;
-      margin-bottom: 10px;
-    }
-    .icon {
-      width: 60px;
-      height: 60px;
-    }
-    .hi-lo {
-      font-size: 18px;
-    }
-    .day-name {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
+  margin: 0;
+  padding: 0;
+  background: #0c0c0c;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  width: 240px;
+  overflow: hidden;
+}
+
+.weather-section {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+.active {
+  display: flex;
+}
+
+.temp {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.desc {
+  font-size: 14px;
+  color: #f9c74f;
+  margin: 2px 0 6px 0;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+}
+
+.hi-lo {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.day-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
   </style>
 </head>
 <body>
