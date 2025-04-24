@@ -33,7 +33,7 @@
     }
     .forecast {
       display: flex;
-      justify-content: space-around;
+      justify-content: space-evenly;
       font-size: 14px;
       margin-top: 20px;
     }
@@ -84,7 +84,7 @@
             <div class="forecast-day">
               <div>${day.name}</div>
               <img src="${day.icon}" alt="${day.shortForecast}">
-              <div>${day.tempHigh}° / ${day.tempLow}°</div>
+              <div>${day.tempHigh}° / ${day.tempLow}° </div>
             </div>
           `;
         });
