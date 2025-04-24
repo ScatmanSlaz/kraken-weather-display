@@ -1,80 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=240, initial-scale=1.0" />
   <title>Kraken Weather Display</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(#0c0c0c, #1a1a1a);
-      font-family: 'Segoe UI', sans-serif;
+      background: #0c0c0c;
       color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      width: 240px;
+      height: 240px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: start;
-      height: 240px;
-      width: 240px;
-      text-align: center;
-      overflow: hidden;
-    }
-    .weather-container {
-      width: 100%;
-      height: 100%;
-      padding: 5px;
+      padding: 4px;
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
     }
     .main-temp {
-      font-size: 32px;
-      margin: 0;
+      font-size: 36px;
+      font-weight: bold;
+      margin: 2px 0;
     }
     .condition {
-      font-size: 14px;
+      font-size: 16px;
       color: #f9c74f;
+      margin-bottom: 4px;
     }
     .weather-icon {
       width: 48px;
       height: 48px;
-      margin: 4px auto;
+      margin-bottom: 6px;
     }
     .forecast {
       display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      margin-top: 5px;
+      justify-content: space-around;
+      width: 100%;
+      font-size: 12px;
     }
     .forecast-day {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 0 2px;
     }
     .forecast-day img {
       width: 32px;
       height: 32px;
+      background: #222;
     }
-    .error {
-      color: #f94144;
-      font-size: 10px;
+    .temps {
+      font-variant-numeric: tabular-nums;
     }
   </style>
 </head>
 <body>
-  <div class="weather-container">
-    <h1 class="main-temp" id="temp">--°F</h1>
-    <div class="condition" id="description">Loading...</div>
-    <img class="weather-icon" id="main-icon" src="" alt="">
-    <div class="forecast" id="forecast"></div>
-    <div class="error" id="error"></div>
+  <div class="main-temp" id="temp">--°F</div>
+  <div class="condition" id="description">Loading...</div>
+  <img id="main-icon" class="weather-icon" src="" alt="Weather Icon" />
+
+  <div class="forecast" id="forecast">
+    <!-- Forecast will populate here -->
   </div>
 
-   <script>
+  <script>
     const url = "https://6a89718d-962a-406e-b0a1-eb14049b9f39-00-3cndeq06ouvtb.spock.replit.dev/weather";
 
     async function fetchWeather() {
@@ -83,27 +75,26 @@
         if (!res.ok) throw new Error("Failed to fetch weather");
         const data = await res.json();
 
-        document.getElementById('temp').textContent = `${data.current.temperature}°F`;
-        document.getElementById('description').textContent = data.current.shortForecast;
-        document.getElementById('main-icon').src = data.current.icon;
+        document.getElementById("temp").textContent = `${data.current.temperature}°F`;
+        document.getElementById("description").textContent = data.current.shortForecast;
+        document.getElementById("main-icon").src = "https://via.placeholder.com/48"; // placeholder for now
 
-        const forecastDiv = document.getElementById('forecast');
+        const forecastDiv = document.getElementById("forecast");
         forecastDiv.innerHTML = "";
 
         data.forecast.forEach(day => {
-          forecastDiv.innerHTML += `
-            <div class="forecast-day">
-              <div>${day.name}</div>
-              <img src="${day.icon}" alt="${day.shortForecast}">
-              <div>${day.tempHigh}° / ${day.tempLow}°</div>
-            </div>
+          const dayElem = document.createElement("div");
+          dayElem.className = "forecast-day";
+          dayElem.innerHTML = `
+            <div>${day.name}</div>
+            <img src="https://via.placeholder.com/32" alt="icon" />
+            <div class="temps">${day.tempHigh}° / ${day.tempLow}°</div>
           `;
+          forecastDiv.appendChild(dayElem);
         });
-
       } catch (err) {
-        console.error("Weather Fetch Error:", err.message);
-        document.getElementById("error").textContent = "Failed to load weather data.";
-        document.getElementById("description").textContent = "Check connection or proxy.";
+        document.getElementById("description").textContent = "Error loading weather";
+        console.error(err);
       }
     }
 
